@@ -12,6 +12,8 @@ import collections
 import pickle
 from mido import MidiFile
 
+import pdb
+
 from piano_vad import (note_detection_with_onset_offset_regress, 
     pedal_detection_with_onset_offset_regress, onsets_frames_note_detection, onsets_frames_pedal_detection)
 import config
@@ -72,7 +74,8 @@ def create_logging(log_dir, filemode):
 
 
 def float32_to_int16(x):
-    assert np.max(np.abs(x)) <= 1.
+    # assert np.max(np.abs(x)) <= 1.
+    x[np.abs(x) > 1] = 1
     return (x * 32767.).astype(np.int16)
 
 
@@ -145,11 +148,13 @@ def read_midi(midi_path):
     midi_file = MidiFile(midi_path)
     ticks_per_beat = midi_file.ticks_per_beat
 
-    assert len(midi_file.tracks) == 2
+    # pdb.set_trace(header='midi tracks')
+
+    # assert len(midi_file.tracks) == 2
     """The first track contains tempo, time signature. The second track 
     contains piano events."""
 
-    microseconds_per_beat = midi_file.tracks[0][0].tempo
+    microseconds_per_beat = 500000.0 #midi_file.tracks[0][0].tempo
     beats_per_second = 1e6 / microseconds_per_beat
     ticks_per_second = ticks_per_beat * beats_per_second
 
@@ -158,7 +163,7 @@ def read_midi(midi_path):
     ticks = 0
     time_in_second = []
 
-    for message in midi_file.tracks[1]:
+    for message in midi_file.tracks[0]:
         message_list.append(str(message))
         ticks += message.time
         time_in_second.append(ticks / ticks_per_second)
@@ -1392,7 +1397,7 @@ def load_audio(path, sr=22050, mono=True, offset=0.0, duration=None,
         n = 0
 
         for frame in input_file:
-            frame = librosa.core.audio.util.buf_to_float(frame, dtype=dtype)
+            frame = librosa.util.buf_to_float(frame, dtype=dtype)
             n_prev = n
             n = n + len(frame)
 
@@ -1422,10 +1427,10 @@ def load_audio(path, sr=22050, mono=True, offset=0.0, duration=None,
         if n_channels > 1:
             y = y.reshape((-1, n_channels)).T
             if mono:
-                y = librosa.core.audio.to_mono(y)
+                y = librosa.to_mono(y)
 
         if sr is not None:
-            y = librosa.core.audio.resample(y, sr_native, sr, res_type=res_type)
+            y = librosa.resample(y, orig_sr=sr_native, target_sr=sr, res_type=res_type)
 
         else:
             sr = sr_native

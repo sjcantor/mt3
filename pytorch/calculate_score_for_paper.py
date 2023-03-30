@@ -12,6 +12,8 @@ import h5py
 import pickle 
 from sklearn import metrics
 from concurrent.futures import ProcessPoolExecutor
+
+import pdb
  
 from utilities import (create_folder, get_filename, traverse_folder, 
     int16_to_float32, note_to_freq, TargetProcessor, RegressionPostProcessor, 
@@ -141,7 +143,7 @@ class ScoreCalculator(object):
         self.pedal_offset_min_tolerance = 0.05
 
         self.post_processor_type = post_processor_type
-        
+
         (hdf5_names, self.hdf5_paths) = traverse_folder(hdf5s_dir)
 
     def __call__(self, params):
@@ -243,6 +245,7 @@ class ScoreCalculator(object):
         est_midi_notes = est_on_off_note_vels[:, 2]
         est_vels = est_on_off_note_vels[:, 3] * self.velocity_scale
 
+        # pdb.set_trace()
         # Calculate note metrics
         if self.velocity:
             (note_precision, note_recall, note_f1, _) = (
@@ -324,6 +327,7 @@ def calculate_metrics(args, thresholds=None):
         with Google's onsets and frames system.
       cuda: bool
     """
+    print('HERE ----------')
 
     # Arugments & parameters
     workspace = args.workspace
@@ -363,7 +367,7 @@ if __name__ == '__main__':
     parser_infer_prob.add_argument('--model_type', type=str, required=True)
     parser_infer_prob.add_argument('--augmentation', type=str, required=True)
     parser_infer_prob.add_argument('--checkpoint_path', type=str, required=True)
-    parser_infer_prob.add_argument('--dataset', type=str, required=True, choices=['maestro', 'maps'])
+    parser_infer_prob.add_argument('--dataset', type=str, required=True, choices=['maestro', 'maps', 'rousseau'])
     parser_infer_prob.add_argument('--split', type=str, required=True)
     parser_infer_prob.add_argument('--post_processor_type', type=str, default='regression')
     parser_infer_prob.add_argument('--cuda', action='store_true', default=False)
@@ -372,7 +376,7 @@ if __name__ == '__main__':
     parser_metrics.add_argument('--workspace', type=str, required=True)
     parser_metrics.add_argument('--model_type', type=str, required=True)
     parser_metrics.add_argument('--augmentation', type=str, required=True)
-    parser_metrics.add_argument('--dataset', type=str, required=True, choices=['maestro', 'maps'])
+    parser_metrics.add_argument('--dataset', type=str, required=True, choices=['maestro', 'maps', 'rousseau'])
     parser_metrics.add_argument('--split', type=str, required=True)
     parser_metrics.add_argument('--post_processor_type', type=str, default='regression')
 

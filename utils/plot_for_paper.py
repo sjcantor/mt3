@@ -9,6 +9,7 @@ import torch
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
+import soundfile as sf
 
 from utilities import (get_filename, traverse_folder, int16_to_float32, note_to_freq, TargetProcessor, RegressionPostProcessor, read_midi)
 import config
@@ -141,7 +142,7 @@ def plot(args):
                         print('note f1: {:.3f}'.format(note_f1))
                         
                     if True:
-                        librosa.output.write_wav('_zz.wav', audio, sr=16000)
+                        sf.write('_zz.wav', audio, 16000)
                         bgn = 15500
                         L = 500
                         fontsize = 7
@@ -150,7 +151,7 @@ def plot(args):
 
                         
                         fig, axs = plt.subplots(7, 1, figsize=(4, 6), sharex=True)
-                        mel = librosa.feature.melspectrogram(audio, sr=16000, n_fft=2048, hop_length=160, n_mels=229, fmin=30, fmax=8000).T
+                        mel = librosa.feature.melspectrogram(y=audio, sr=16000, n_fft=2048, hop_length=160, n_mels=229, fmin=30, fmax=8000).T
                         axs[0].matshow(np.log(mel[bgn : bgn + L]).T, origin='lower', aspect='auto', cmap='jet')
                         axs[1].matshow(target_dict['frame_roll'][bgn : bgn + L].T, origin='lower', aspect='auto', cmap='jet', vmin=vmin, vmax=vmax)
                         axs[2].matshow(output_dict['frame_output'][bgn : bgn + L].T, origin='lower', aspect='auto', cmap='jet', vmin=vmin, vmax=vmax)
@@ -186,7 +187,7 @@ def plot(args):
                         print('Plot to {}'.format(fig_path))
 
                         fig, axs = plt.subplots(7, 1, figsize=(4, 6), sharex=True)
-                        mel = librosa.feature.melspectrogram(audio, sr=16000, n_fft=2048, hop_length=160, n_mels=229, fmin=30, fmax=8000).T
+                        mel = librosa.feature.melspectrogram(y=audio, sr=16000, n_fft=2048, hop_length=160, n_mels=229, fmin=30, fmax=8000).T
                         axs[0].matshow(np.log(mel[bgn : bgn + L]).T, origin='lower', aspect='auto', cmap='jet')
                         axs[1].plot(target_dict['pedal_frame_roll'][bgn : bgn + L])
                         axs[2].plot(output_dict['pedal_frame_output'][bgn : bgn + L])
@@ -505,7 +506,7 @@ def plot3(args):
 
                         import matplotlib.pyplot as plt
                         fig, axs = plt.subplots(5, 1, figsize=(4, 4.5), sharex=True)
-                        mel = librosa.feature.melspectrogram(audio, sr=16000, n_fft=2048, hop_length=160, n_mels=229, fmin=30, fmax=8000).T
+                        mel = librosa.feature.melspectrogram(y=audio, sr=16000, n_fft=2048, hop_length=160, n_mels=229, fmin=30, fmax=8000).T
                         axs[0].matshow(np.log(mel[bgn : bgn + L]).T, origin='lower', aspect='auto', cmap='jet')
                         axs[1].matshow(total_dict1['reg_onset_output'][bgn : bgn + L].T, origin='lower', aspect='auto', cmap='jet', vmin=vmin, vmax=vmax)
                         axs[2].matshow(total_dict2['reg_onset_output'][bgn : bgn + L].T, origin='lower', aspect='auto', cmap='jet', vmin=vmin, vmax=vmax)
@@ -541,7 +542,7 @@ def plot3(args):
                         asdf
 
                         fig, axs = plt.subplots(5, 1, figsize=(8, 8), sharex=True)
-                        mel = librosa.feature.melspectrogram(audio, sr=16000, n_fft=2048, hop_length=160, n_mels=229, fmin=30, fmax=8000).T
+                        mel = librosa.feature.melspectrogram(y=audio, sr=16000, n_fft=2048, hop_length=160, n_mels=229, fmin=30, fmax=8000).T
                         axs[0].matshow(np.log(mel[bgn : bgn + L]).T, origin='lower', aspect='auto', cmap='jet')
                         axs[1].plot(total_dict1['reg_pedal_offset_output'][bgn : bgn + L])
                         axs[2].plot(total_dict2['reg_pedal_offset_output'][bgn : bgn + L])
@@ -587,7 +588,7 @@ def plot_midi(args):
         midi_events=midi_dict['midi_event'])
     
     fig, axs = plt.subplots(3, 1, figsize=(10, 4), sharex=True)
-    logmel = np.log(librosa.feature.melspectrogram(audio, sr=16000, n_fft=2048, hop_length=160, n_mels=229, fmin=30, fmax=8000)).T
+    logmel = np.log(librosa.feature.melspectrogram(y=audio, sr=16000, n_fft=2048, hop_length=160, n_mels=229, fmin=30, fmax=8000)).T
     axs[0].matshow(logmel.T, origin='lower', aspect='auto', cmap='jet')
     axs[1].matshow(target_dict['frame_roll'].T, origin='lower', aspect='auto', cmap='jet', vmin=-1, vmax=1)
     axs[2].plot(target_dict['pedal_frame_roll'])
@@ -620,7 +621,7 @@ if __name__ == '__main__':
     parser_plot.add_argument('--workspace', type=str, required=True)
     parser_plot.add_argument('--model_type', type=str, required=True)
     parser_plot.add_argument('--checkpoint_path', type=str, required=True)
-    parser_plot.add_argument('--dataset', type=str, required=True, choices=['maestro', 'maps'])
+    parser_plot.add_argument('--dataset', type=str, required=True, choices=['maestro', 'maps', 'rousseau'])
     parser_plot.add_argument('--split', type=str, required=True)
     parser_plot.add_argument('--post_processor_type', type=str, default='regression')
     parser_plot.add_argument('--cuda', action='store_true', default=False)
@@ -629,7 +630,7 @@ if __name__ == '__main__':
     parser_plot.add_argument('--workspace', type=str, required=True)
     parser_plot.add_argument('--model_type', type=str, required=True)
     parser_plot.add_argument('--checkpoint_path', type=str, required=True)
-    parser_plot.add_argument('--dataset', type=str, required=True, choices=['maestro', 'maps'])
+    parser_plot.add_argument('--dataset', type=str, required=True, choices=['maestro', 'maps', 'rousseau'])
     parser_plot.add_argument('--split', type=str, required=True)
     parser_plot.add_argument('--post_processor_type', type=str, default='regression')
     parser_plot.add_argument('--cuda', action='store_true', default=False)
@@ -637,7 +638,7 @@ if __name__ == '__main__':
     parser_plot = subparsers.add_parser('plot3')
     parser_plot.add_argument('--workspace', type=str, required=True)
     parser_plot.add_argument('--model_type', type=str, required=True)
-    parser_plot.add_argument('--dataset', type=str, required=True, choices=['maestro', 'maps'])
+    parser_plot.add_argument('--dataset', type=str, required=True, choices=['maestro', 'maps', 'rousseau'])
     parser_plot.add_argument('--split', type=str, required=True)
     parser_plot.add_argument('--cuda', action='store_true', default=False)
 
