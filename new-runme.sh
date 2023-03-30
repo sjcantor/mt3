@@ -3,7 +3,7 @@
 # ============ Inference using pretrained model ============
 # Download checkpoint and inference
 CHECKPOINT_PATH="CRNN_note_F1=0.9677_pedal_F1=0.9186.pth"
-# wget -O $CHECKPOINT_PATH "https://zenodo.org/record/4034264/files/CRNN_note_F1%3D0.9677_pedal_F1%3D0.9186.pth?download=1"
+wget -O $CHECKPOINT_PATH "https://zenodo.org/record/4034264/files/CRNN_note_F1%3D0.9677_pedal_F1%3D0.9186.pth?download=1"
 MODEL_TYPE="Note_pedal"
 
 
